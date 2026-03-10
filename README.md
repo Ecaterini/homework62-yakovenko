@@ -1,86 +1,131 @@
-# Інтеграція шаблонізаторів PUG та EJS у існуючий Express сервер
+# Робота зі статичними файлами, Cookies та JWT на сервері Express
 
 ## 📌 Опис проєкту
 
-У цьому проєкті реалізовано інтеграцію двох шаблонізаторів (PUG та EJS) у вже існуючий RESTful API на Node.js та Express без зміни MVC-архітектури.
+У цьому проєкті розширено існуючий Express сервер, додавши підтримку:
 
-Шаблонізатори використовуються для відображення HTML-сторінок:
+- статичних файлів (favicon)
+- cookies для збереження налаштувань користувача
+- авторизації за допомогою JWT
 
-- PUG для маршрутів користувачів
-- EJS для маршрутів статей
+Проєкт використовує MVC-архітектуру та шаблонізатори PUG і EJS.
 
-Також підключено CSS для покращення зовнішнього вигляду сторінок.
+# Технології
 
-## Реалізований функціонал
+- Node.js
+- Express.js
+- PUG
+- EJS
+- cookie-parser
+- JSON Web Token (jsonwebtoken)
 
-### 1. PUG для користувачів
+# Реалізований функціонал
 
-Сервер віддає HTML-сторінки:
+## Статичні файли
 
-- `/users` – список користувачів
-- `/users/:userId` – деталі користувача
+Було додано favicon для всіх HTML сторінок.
 
-Створені шаблони:
+Файл розміщено у папці:
 
-- `views/users/users.pug`
-- `views/users/user.pug`
+public/favicon.ico
 
----
-
-### 2. EJS для статей
-
-Сервер віддає HTML-сторінки:
-
-- `/articles` – список статей
-- `/articles/:articleId` – деталі статті
-
-Створені шаблони:
-
-- `views/articles/articles.ejs`
-- `views/articles/article.ejs`
-
----
-
-3.  Передача даних у шаблони
-    Дані передаються з контролерів через:
-
-```js
-res.render();
-```
-
-### 4. Підключення статичних файлів
-
-Для стилізації сторінок використано CSS:
-
-папка public
-
-підключення через middleware:
+Express налаштований для віддачі статичних файлів:
 
 app.use(express.static("public"));
 
-## Запуск проєкту
+У шаблонах додано:
 
-- Встановити залежності:
+PUG
+
+link(rel="icon", href="/favicon.ico")
+
+EJS
+
+<link rel="icon" href="/favicon.ico"> ```
+
+## Cookies
+
+Для роботи з cookies використано пакет:
+
+cookie-parser
+
+Middleware підключено у сервері:
+
+app.use(cookieParser());
+
+Реалізовано маршрут для збереження теми сайту:
+
+/set-theme/:theme
+
+Приклад:
+
+http://localhost:3000/set-theme/dark
+
+Цей маршрут зберігає cookie:
+
+theme = dark
+JWT авторизація
+
+Для авторизації використано бібліотеку:
+
+jsonwebtoken
+
+Реалізовано маршрут:
+
+/login
+
+який створює JWT токен та зберігає його у cookies.
+
+const token = jwt.sign(user, SECRET)
+
+Токен зберігається:
+
+res.cookie("token", token, { httpOnly: true })
+Middleware перевірки JWT
+
+Створено middleware:
+
+middlewares/authJWT.middleware.js
+
+який перевіряє наявність і валідність токена.
+
+jwt.verify(token, SECRET)
+Захищений маршрут
+
+Маршрут:
+
+/profile
+
+доступний лише при наявності JWT токена.
+
+Приклад відповіді:
+
+Hello admin
+
+# Запуск проєкту
+
+Встановити залежності:
 
 npm install
 
-- Запустити сервер:
+Запустити сервер:
 
-npm start
+node app.js
+Перевірка роботи
 
-- Сервер працює на:
-
-http://localhost:3000
-
-- Перевірка роботи
-  PUG сторінки:
+Сторінки:
 
 http://localhost:3000/users
-
-http://localhost:3000/users/1
-
-- EJS сторінки:
-
 http://localhost:3000/articles
 
-http://localhost:3000/articles/1
+Cookies:
+
+http://localhost:3000/set-theme/dark
+
+JWT авторизація:
+
+http://localhost:3000/login
+
+Захищений маршрут:
+
+http://localhost:3000/profile
